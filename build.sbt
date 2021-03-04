@@ -39,10 +39,10 @@ lazy val parserCombinators = crossProject(JVMPlatform, JSPlatform, NativePlatfor
       case _ => Seq()
     }),
     // don't run Dottydoc, it errors and isn't needed anyway
-    Compile / doc / sources := (if (isDotty.value) Seq() else (Compile / doc/ sources).value),
-    Compile / packageDoc / publishArtifact := !isDotty.value,
+    Compile / doc / sources := (if (scalaVersion.value.startsWith("3")) Seq() else (Compile / doc/ sources).value),
+    Compile / packageDoc / publishArtifact := !scalaVersion.value.startsWith("3"),
     Compile / doc / scalacOptions ++= {
-      if (isDotty.value)
+      if (scalaVersion.value.startsWith("3"))
         Seq()
       else
         Seq(
