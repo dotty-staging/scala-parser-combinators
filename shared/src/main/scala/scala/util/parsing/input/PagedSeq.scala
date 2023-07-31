@@ -131,7 +131,7 @@ extends scala.collection.AbstractSeq[T]
     if (absindex < current.start)
       current = first1
     while (absindex >= current.end && current.next != null)
-      current = current.next
+      current = current.next.nn
     while (absindex >= current.end && !current.isLast) {
       current = addMore()
     }
@@ -175,7 +175,7 @@ extends scala.collection.AbstractSeq[T]
     var f = first1
     while (f.end <= s && !f.isLast) {
       if (f.next eq null) f = f.addMore(more)
-      else f = f.next
+      else f = f.next.nn
     }
     // Warning -- not refining `more` means that slices can freely request and obtain
     // data outside of their slice.  This is part of the design of PagedSeq
@@ -204,7 +204,7 @@ private class Page[T: ClassTag](val num: Int) {
   private final val PageSize = 4096
 
   /** The next page in the sequence */
-  var next  : Page[T] = null
+  var next  : Page[T]|Null = null
 
   /** A later page in the sequence, serves a cache for pointing to last page */
   var later : Page[T] = this
@@ -230,9 +230,9 @@ private class Page[T: ClassTag](val num: Int) {
    *  elements get appended to the sequence.  */
   final def latest: Page[T] = {
     var oldLater = later
-    while (later.next != null) later = later.next
+    while (later.next != null) later = later.next.nn
     while (oldLater.next != null) {
-      oldLater = oldLater.next
+      oldLater = oldLater.next.nn
       oldLater.later = later
     }
     later
@@ -251,7 +251,7 @@ private class Page[T: ClassTag](val num: Int) {
   final def addMore(more: (Array[T], Int, Int) => Int): Page[T] =
     if (filled == PageSize) {
       next = new Page[T](num + 1)
-      next.addMore(more)
+      next.nn.addMore(more)
     } else {
       val count = more(data, filled, PageSize - filled)
       if (count < 0) isLast = true
