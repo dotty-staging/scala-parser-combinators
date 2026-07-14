@@ -236,7 +236,7 @@ trait Parsers {
       case _ => None
     }
 
-  def OnceParser[T](f: Input => ParseResult[T]): Parser[T] with OnceParser[T]
+  def OnceParser[T](f: Input => ParseResult[T]): Parser[T] & OnceParser[T]
     = new Parser[T] with OnceParser[T] { def apply(in: Input) = f(in) }
 
   /** The root class of parsers.
